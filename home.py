@@ -1,10 +1,18 @@
 from urllib.request import urlopen
-from urllib.parse import urlencode, quote_plus
 import pandas as pd
 import xmltodict
 import json
 from datetime import datetime
 import csv
+
+#새로운 시가 발생했을때 증가율 불러오기 고민
+
+def get_code():
+    #새로운 시가 발생했을 때는?
+    # -> API로 코드 불러오기
+    #매달 불러올 때 확인해야되는데 제공해주는 API가 한개뿐. 따라서 beautifulsoup selenium모듈 이용해 txt파일 저장하는 크롤링 개발 예정..
+    #txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
+    print('a')
 
 # 현재 날짜 불러오기
 todaymonth = datetime.today().strftime('%Y%m')
@@ -60,4 +68,6 @@ for i in range(0,len(df)):
 
 print(df)
 
-
+#트래픽 초과 오류 발생..
+#어떻게 해결해야 할까..
+#계속 불러오면서 csv에 추가. 오류 발생하면 중단. 처음 데이터 셋만 잘 갖다 붙이면 될듯.

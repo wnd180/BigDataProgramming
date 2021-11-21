@@ -1,5 +1,6 @@
 import pandas as pd
-import numpy as np
+
+# https://www.code.go.kr/index.do 내에 법정동 코드 전체 다운로드한 txt파일.
 
 df = pd.read_csv(r"code_data.txt", sep='\t')
 
