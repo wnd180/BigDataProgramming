@@ -12,6 +12,7 @@ def get_code():
     # -> API로 코드 불러오기
     #매달 불러올 때 확인해야되는데 제공해주는 API가 한개뿐. 따라서 beautifulsoup selenium모듈 이용해 txt파일 저장하는 크롤링 개발 예정..
     #txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
+    #h로 끝나는거 쓰자.!
     print('a')
 
 # 현재 날짜 불러오기
@@ -36,9 +37,12 @@ rdr = csv.reader(f)
 for line in rdr:
     gu_code = line[1]
     region = line[2]
+
     print(gu_code)
+
     # 해당 구에 해당 달 거래내역 없을 수 있음. 따라서 try except구문 이용
     try:
+
         url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD='+gu_code+'&DEAL_YMD='+base_date+'&serviceKey='+service_key
         response = urlopen(url)
         results = response.read().decode("utf-8")
@@ -53,7 +57,6 @@ for line in rdr:
             region_code.append(i['지역코드'])
             region_name.append(region)
 
-
     except:
 
         continue
@@ -63,6 +66,7 @@ f.close()
 df= pd.DataFrame([price, year, dong, area, region_code, region_name]).T
 df.columns=['price','year','dong','area','region_code','region_nmae']
 
+#공정한 집값 계산을 위해 면적당 가격을 구함.
 for i in range(0,len(df)):
     df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
 
