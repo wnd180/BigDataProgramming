@@ -6,13 +6,22 @@ from datetime import datetime
 import csv
 
 #새로운 시가 발생했을때 증가율 불러오기 고민
+#나중에 생각하기
+
+def crawling():
+    print("hello world!")
 
 def get_code():
     #새로운 시가 발생했을 때는?
+    # -> 편입된 상위 시 소속으로 변경됌
+
     # -> API로 코드 불러오기
     #매달 불러올 때 확인해야되는데 제공해주는 API가 한개뿐. 따라서 beautifulsoup selenium모듈 이용해 txt파일 저장하는 크롤링 개발 예정..
     #txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
-    #h로 끝나는거 쓰자.!
+    #https://www.code.go.kr/stdcode/regCodeL.do
+
+    #압축파일 불러올 떄는 h로 끝나는거 쓰자.!
+    #https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000052
     print('a')
 
 # 현재 날짜 불러오기
@@ -49,7 +58,7 @@ for line in rdr:
         result_to_json = xmltodict.parse(results)
         data = json.loads(json.dumps(result_to_json))
         val = data['response']['body']['items']['item']
-        
+
         for i in val:
             price.append(i['거래금액'])
             year.append(i['년'])
@@ -73,6 +82,6 @@ for i in range(0,len(df)):
 
 print(df)
 
-#트래픽 초과 오류 발생..
-#어떻게 해결해야 할까..
-#계속 불러오면서 csv에 추가. 오류 발생하면 중단. 처음 데이터 셋만 잘 갖다 붙이면 될듯.
+# for 문 도중 트래픽 초과 오류 발생..
+# 어떻게 해결해야 할까..
+# 계속 불러오면서 csv에 추가. 오류 발생하면 중단. 처음 데이터 셋만 잘 갖다 붙이면 될듯.

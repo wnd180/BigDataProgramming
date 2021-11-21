@@ -4,9 +4,11 @@ import xmltodict
 import json
 from datetime import datetime
 
-#지영인증키
+pd.set_option('display.max_rows', None) ## 모든 열을 출력한다.
+
+#인증키1
 #1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D
-#성중인증키
+#인증키2
 #%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D
 
 # 현재 날짜 불러오기
@@ -14,7 +16,7 @@ todaymonth = datetime.today().strftime('%Y%m')
 service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
 
 # 해당 월 거래내역 불러오기.
-base_date = "202001"
+base_date = "201001"
 gu_code = '41171' #테스트 할 법정동 코드 확인
 # 폐지된 곳: 소사구 41197
 
