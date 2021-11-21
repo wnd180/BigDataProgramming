@@ -49,6 +49,7 @@ for line in rdr:
         result_to_json = xmltodict.parse(results)
         data = json.loads(json.dumps(result_to_json))
         val = data['response']['body']['items']['item']
+        
         for i in val:
             price.append(i['거래금액'])
             year.append(i['년'])
