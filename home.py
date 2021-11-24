@@ -6,24 +6,19 @@ from datetime import datetime
 import csv
 from selenium import webdriver
 from time import sleep
-
-# 새로운 시가 발생했을때 증가율 불러오기 고민
-# 나중에 생각하기
+import zipfile
+import os
+# 새로운 시가 발생했을때 증가율 불러오기 고민하기
 
 def crawling():
+    # 매달 시군구가 생기거나 폐지 될 수 있기 때문에 매번 check해서 새로운 txt파일 받아옴
+    # 크롤링 다운로드 전 똑같은 파일 명이 있을 경우 삭제해 주기
 
     #새로운 시가 발생했을 때는?
     # -> 편입된 상위 시 소속으로 변경됌
-
     # -> API로 코드 불러오기
     # 매달 불러올 때 확인해야되는데 제공해주는 API가 한개뿐. 따라서 beautifulsoup selenium모듈 이용해 txt파일 저장하는 크롤링 개발 예정..
-    # txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
-    # https://www.code.go.kr/stdcode/regCodeL.do
 
-    # 압축파일 불러올 떄는 h로 끝나는거 쓰자.!
-    # https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000052
-
-    # 매달 시군구가 생기거나 폐지 될 수 있기 때문에 매번 check해서 새로운 txt파일 받아옴
     driver = webdriver.Chrome('/Users/kwonseongjung/Downloads/chromedriver')
     driver.implicitly_wait(3) # 페이지 전체 로딩 기다림.
     driver.get('https://www.code.go.kr/stdcode/regCodeL.do')
@@ -37,14 +32,24 @@ def crawling():
     driver.close()
 
 def zip_to_txt():
+    # txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
+    # https://www.code.go.kr/stdcode/regCodeL.do
     # 1. 압축해제
     # 2. txt파일 꺼내기
-    # 3. csv파일로 변환하기
-    print("hello world")
+    # 3. 인코딩 형태 변환하기 -> cp949쓰면 될듯.
 
-def txt_to_csv():
+    #현재 디렉토리로 압축해제
+    zipfile.ZipFile('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip').extractall()
 
-    df = pd.read_csv(r"code_data.txt", sep='\t')
+    # rename
+    file_oldname = os.path.join("/Users/kwonseongjung/Library/Mobile Documents/com~apple~CloudDocs/univ/2-2/Bigdata Programming/BigDataProgramming_project", "╣²┴ñ╡┐─┌╡σ └ⁿ├╝└┌╖ß.txt")
+    file_newname_newfile = os.path.join("/Users/kwonseongjung/Library/Mobile Documents/com~apple~CloudDocs/univ/2-2/Bigdata Programming/BigDataProgramming_project", "code_data.txt")
+
+    os.rename(file_oldname, file_newname_newfile)
+
+def code_extract():
+
+    df = pd.read_csv(r"code_data.txt", sep='\t', encoding='cp949')
 
     # 폐지된 시군구 삭제 뺴줘야되나..? 없으면 try except로 빠져나갈텐데..흠 모르겠네 ㅎㅎ;
     # -> 변경된 시군구로 출력되기 때문에 그럴 필요 x
@@ -96,65 +101,79 @@ def txt_to_csv():
 
     df.to_csv('refine_code.csv')
 
-# 현재 날짜 불러오기
-todaymonth = datetime.today().strftime('%Y%m')
-service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
-# base_date = todaymonth
-base_date = "202001"
+def first_call_api():
+    
+    #2012년 ~ 2020년 월별
+    for i in range(2012,2021):
+        for j in range(1,13):
+            if j<10:
+                base_date = str(i)+'0'+str(j)
+                call_api(base_date)
+            else:
+                base_date = str(i)+str(j)
+                call_api(base_date)
 
-# 리스트 생성
-price = []
-year = []
-dong = []
-area = []
-region_code = []
-region_name = []
+def call_api(base_date):
 
-# csv파일 불러오기
-f = open('refine_code.csv','r',encoding='utf-8')
-rdr = csv.reader(f)
+    # 현재 날짜 불러오기
+    todaymonth = datetime.today().strftime('%Y%m')
+    service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
+    # 처음 csv 저장을 위해 현재 달로 불러오는 base_date를 일시적으로 막아두었습니다.
+    # base_date = todaymonth
 
-# 정제된 법정동 코드를 for문을 통해 불러옴. 
-for line in rdr:
-    gu_code = line[1]
-    region = line[2]
+    # 리스트 생성
+    price = []
+    year = []
+    dong = []
+    area = []
+    region_code = []
+    region_name = []
 
-    print(gu_code)
+    # csv파일 불러오기
+    f = open('refine_code.csv','r',encoding='utf-8')
+    rdr = csv.reader(f)
 
-    # 해당 구에 해당 달 거래내역 없을 수 있음. 따라서 try except구문 이용
-    try:
+    # 정제된 법정동 코드를 for문을 통해 불러옴. 
+    for line in rdr:
+        gu_code = line[1]
+        region = line[2]
+        print(gu_code)
 
-        url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD='+gu_code+'&DEAL_YMD='+base_date+'&serviceKey='+service_key
-        response = urlopen(url)
-        results = response.read().decode("utf-8")
-        result_to_json = xmltodict.parse(results)
-        data = json.loads(json.dumps(result_to_json))
-        val = data['response']['body']['items']['item']
+        # 해당 구에 해당 달 거래내역 없을 수 있음. 따라서 try except구문 이용
+        try:
 
-        for i in val:
-            price.append(i['거래금액'])
-            year.append(i['년'])
-            dong.append(i['법정동'])
-            area.append(i['전용면적'])
-            region_code.append(i['지역코드'])
-            region_name.append(region)
+            url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD='+gu_code+'&DEAL_YMD='+base_date+'&serviceKey='+service_key
+            response = urlopen(url)
+            results = response.read().decode("utf-8")
+            result_to_json = xmltodict.parse(results)
+            data = json.loads(json.dumps(result_to_json))
+            val = data['response']['body']['items']['item']
 
-    except:
+            for i in val:
+                price.append(i['거래금액'])
+                year.append(i['년'])
+                dong.append(i['법정동'])
+                area.append(i['전용면적'])
+                region_code.append(i['지역코드'])
+                region_name.append(region)
 
-        continue
+        except:
 
-f.close()
+            continue
 
-df= pd.DataFrame([price, year, dong, area, region_code, region_name]).T
-df.columns=['price','year','dong','area','region_code','region_nmae']
+    f.close()
 
-# 공정한 집값 계산을 위해 면적당 가격을 구함.
-for i in range(0,len(df)):
-    df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
+    df= pd.DataFrame([price, year, dong, area, region_code, region_name]).T
+    df.columns=['price','year','dong','area','region_code','region_nmae']
 
-print(df)
+    # 공정한 집값 계산을 위해 면적당 가격을 구함.
+    for i in range(0,len(df)):
+        df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
+
+    print(df)
 
 # for 문 도중 트래픽 초과 오류 발생..
 # 어떻게 해결해야 할까..
 # 계속 불러오면서 csv에 축적. 오류 발생하면 중단. 처음 데이터 셋만 잘 갖다 붙이면 될듯.
 # 한달마다 반복
+# 새 해일경우 (ex 2022년 1월), 2012년 데이터 다 지우기
