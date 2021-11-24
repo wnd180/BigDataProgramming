@@ -5,9 +5,10 @@ import json
 from datetime import datetime
 import csv
 from selenium import webdriver
-from time import sleep
 import zipfile
 import os
+
+
 # 새로운 시가 발생했을때 증가율 불러오기 고민하기
 
 def crawling():
@@ -19,17 +20,23 @@ def crawling():
     # -> API로 코드 불러오기
     # 매달 불러올 때 확인해야되는데 제공해주는 API가 한개뿐. 따라서 beautifulsoup selenium모듈 이용해 txt파일 저장하는 크롤링 개발 예정..
 
+    # 기존 zip파일 존재할 경우 삭제해주기
+    if os.path.isfile('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip'):
+        os.remove('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip')
+        
     driver = webdriver.Chrome('/Users/kwonseongjung/Downloads/chromedriver')
-    driver.implicitly_wait(3) # 페이지 전체 로딩 기다림.
+    driver.implicitly_wait(10) # 페이지 전체 로딩 기다림.
     driver.get('https://www.code.go.kr/stdcode/regCodeL.do')
 
     # 법정동코드 전체 다운로드 버튼을 눌러주자.
     driver.find_element_by_xpath('//*[@id="contents"]/form/table/tbody/tr[2]/td/div/div/a[2]').click()
 
-    sleep(3) # 3초간 기다림
+    # 파일 존재할 때 까지 크롬창 기다리기
+    while 1:
+        if os.path.isfile('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip'):
+            driver.close()
+            break
 
-    # 크롬창 닫기
-    driver.close()
 
 def zip_to_txt():
     # txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
@@ -39,17 +46,17 @@ def zip_to_txt():
     # 3. 인코딩 형태 변환하기 -> cp949쓰면 될듯.
 
     #현재 디렉토리로 압축해제
-    zipfile.ZipFile('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip').extractall()
+    zipfile.ZipFile('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip').extractall(os.getcwd())
 
     # rename
-    file_oldname = os.path.join("/Users/kwonseongjung/Library/Mobile Documents/com~apple~CloudDocs/univ/2-2/Bigdata Programming/BigDataProgramming_project", "╣²┴ñ╡┐─┌╡σ └ⁿ├╝└┌╖ß.txt")
-    file_newname_newfile = os.path.join("/Users/kwonseongjung/Library/Mobile Documents/com~apple~CloudDocs/univ/2-2/Bigdata Programming/BigDataProgramming_project", "code_data.txt")
+    file_oldname = os.path.join(os.getcwd(), "╣²┴ñ╡┐─┌╡σ └ⁿ├╝└┌╖ß.txt")
+    file_newname_newfile = os.path.join(os.getcwd(), "code_data.txt")
 
     os.rename(file_oldname, file_newname_newfile)
 
 def code_extract():
 
-    df = pd.read_csv(r"code_data.txt", sep='\t', encoding='cp949')
+    df = pd.read_csv(r"./code_data.txt", sep='\t', encoding='cp949')
 
     # 폐지된 시군구 삭제 뺴줘야되나..? 없으면 try except로 빠져나갈텐데..흠 모르겠네 ㅎㅎ;
     # -> 변경된 시군구로 출력되기 때문에 그럴 필요 x
@@ -99,25 +106,38 @@ def code_extract():
     #index 초기화
     df.reset_index(inplace = True, drop = True)
 
-    df.to_csv('refine_code.csv')
+    df.to_csv('./refine_code.csv')
 
 def first_call_api():
     
     #2012년 ~ 2020년 월별
-    for i in range(2012,2021):
-        for j in range(1,13):
-            if j<10:
-                base_date = str(i)+'0'+str(j)
-                call_api(base_date)
-            else:
-                base_date = str(i)+str(j)
-                call_api(base_date)
+    # for i in range(2012,2021):
+    #     for j in range(1,13):
+    #         if j<10:
+    #             base_date = str(i)+'0'+str(j)
+    #             call_api(base_date)
+    #         else:
+    #             base_date = str(i)+str(j)
+    #             call_api(base_date)
+    for i in range(5,13):
+        if i<10:
+            base_date = '20120'+str(i)
+            call_api(base_date)
+        else:
+            base_date = '2012'+str(i)
+            call_api(base_date)
 
 def call_api(base_date):
 
+    #인증키1
+    #1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D
+    #인증키2
+    #%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D
+
     # 현재 날짜 불러오기
     todaymonth = datetime.today().strftime('%Y%m')
-    service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
+    service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
+
     # 처음 csv 저장을 위해 현재 달로 불러오는 base_date를 일시적으로 막아두었습니다.
     # base_date = todaymonth
 
@@ -130,7 +150,7 @@ def call_api(base_date):
     region_name = []
 
     # csv파일 불러오기
-    f = open('refine_code.csv','r',encoding='utf-8')
+    f = open('./refine_code.csv','r',encoding='utf-8')
     rdr = csv.reader(f)
 
     # 정제된 법정동 코드를 for문을 통해 불러옴. 
@@ -170,10 +190,21 @@ def call_api(base_date):
     for i in range(0,len(df)):
         df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
 
-    print(df)
+    df.to_csv(base_date+'.csv',encoding='utf-8-sig')
+
+def new_year_Check():
+    print("202201 일경우 2012년 파일 reset해주세요")
 
 # for 문 도중 트래픽 초과 오류 발생..
 # 어떻게 해결해야 할까..
 # 계속 불러오면서 csv에 축적. 오류 발생하면 중단. 처음 데이터 셋만 잘 갖다 붙이면 될듯.
-# 한달마다 반복
+# 한달마다 반복 (매달 5일 전 달 것으로 구현)
 # 새 해일경우 (ex 2022년 1월), 2012년 데이터 다 지우기
+
+def main():
+    crawling()
+    zip_to_txt()
+    code_extract()
+    first_call_api()
+
+first_call_api()
