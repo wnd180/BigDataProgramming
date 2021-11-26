@@ -152,16 +152,17 @@ def call_api(base_date):
     # csv파일 불러오기
     f = open('./refine_code.csv','r',encoding='utf-8')
     rdr = csv.reader(f)
-    
+    #헤더 제거하고 진행해야 여러개 파일 뽑을 때 딱 들어 맞음. 250* 4= 1000 인증키당 4달씩 한번에 뽑을 수 있음.
+    next(rdr)
+
     # 정제된 법정동 코드를 for문을 통해 불러옴. 
     for line in rdr:
         gu_code = line[1]
         region = line[2]
         print(gu_code)
 
-        # 해당 구에 해당 달 거래내역 없을 수 있음. 따라서 try except구문 이용
         try:
-
+            # 해당 구에 해당 달 거래내역 없을 수 있음. 따라서 try except구문 이용
             url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD='+gu_code+'&DEAL_YMD='+base_date+'&serviceKey='+service_key
             response = urlopen(url)
             results = response.read().decode("utf-8")
