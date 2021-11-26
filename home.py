@@ -25,8 +25,8 @@ def crawling():
         os.remove('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip')
         
     driver = webdriver.Chrome('/Users/kwonseongjung/Downloads/chromedriver')
-    driver.implicitly_wait(10) # 페이지 전체 로딩 기다림.
     driver.get('https://www.code.go.kr/stdcode/regCodeL.do')
+    driver.implicitly_wait(10) # 페이지 전체 로딩 기다림.
 
     # 법정동코드 전체 다운로드 버튼을 눌러주자.
     driver.find_element_by_xpath('//*[@id="contents"]/form/table/tbody/tr[2]/td/div/div/a[2]').click()
@@ -119,12 +119,12 @@ def first_call_api():
     #         else:
     #             base_date = str(i)+str(j)
     #             call_api(base_date)
-    for i in range(5,13):
+    for i in range(1,5):
         if i<10:
-            base_date = '20120'+str(i)
+            base_date = '20130'+str(i)
             call_api(base_date)
         else:
-            base_date = '2012'+str(i)
+            base_date = '2013'+str(i)
             call_api(base_date)
 
 def call_api(base_date):
@@ -136,7 +136,7 @@ def call_api(base_date):
 
     # 현재 날짜 불러오기
     todaymonth = datetime.today().strftime('%Y%m')
-    service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
+    service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
 
     # 처음 csv 저장을 위해 현재 달로 불러오는 base_date를 일시적으로 막아두었습니다.
     # base_date = todaymonth
@@ -152,7 +152,7 @@ def call_api(base_date):
     # csv파일 불러오기
     f = open('./refine_code.csv','r',encoding='utf-8')
     rdr = csv.reader(f)
-
+    
     # 정제된 법정동 코드를 for문을 통해 불러옴. 
     for line in rdr:
         gu_code = line[1]
@@ -194,6 +194,10 @@ def call_api(base_date):
 
 def new_year_Check():
     print("202201 일경우 2012년 파일 reset해주세요")
+
+def check_month():
+    print("한달마다 실행되도록 구현")
+
 
 # for 문 도중 트래픽 초과 오류 발생..
 # 어떻게 해결해야 할까..

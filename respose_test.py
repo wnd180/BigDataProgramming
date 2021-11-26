@@ -13,11 +13,11 @@ pd.set_option('display.max_rows', None) ## 모든 열을 출력한다.
 
 # 현재 날짜 불러오기
 todaymonth = datetime.today().strftime('%Y%m')
-service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
+service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
 
 # 해당 월 거래내역 불러오기.
-base_date = "201204"
-gu_code = '50130' #테스트 할 법정동 코드 확인
+base_date = "201212"
+gu_code = '48890' #테스트 할 법정동 코드 확인
 # 폐지된 곳: 소사구 41197
 
 url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD='+gu_code+'&DEAL_YMD='+base_date+'&serviceKey='+service_key
@@ -48,4 +48,4 @@ df.columns=['price','year','dong','area','region_code']
 for i in range(0,len(df)):
     df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
 
-    df.to_csv('123.csv',encoding='utf-8-sig')
+    df.to_csv('1.csv',encoding='utf-8-sig')
