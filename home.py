@@ -119,7 +119,7 @@ def first_call_api():
     #         else:
     #             base_date = str(i)+str(j)
     #             call_api(base_date)
-    for i in range(1,5):
+    for i in range(12,13):
         if i<10:
             base_date = '20130'+str(i)
             call_api(base_date)
@@ -133,10 +133,12 @@ def call_api(base_date):
     #1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D
     #인증키2
     #%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D
+    #인증키3
+    #VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D
 
     # 현재 날짜 불러오기
     todaymonth = datetime.today().strftime('%Y%m')
-    service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
+    service_key = "VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D"
 
     # 처음 csv 저장을 위해 현재 달로 불러오는 base_date를 일시적으로 막아두었습니다.
     # base_date = todaymonth
