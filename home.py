@@ -121,10 +121,10 @@ def first_call_api():
     #             call_api(base_date)
     for i in range(9,13):
         if i<10:
-            base_date = '20140'+str(i)
+            base_date = '20150'+str(i)
             call_api(base_date)
         else:
-            base_date = '2014'+str(i)
+            base_date = '2015'+str(i)
             call_api(base_date)
 
 def call_api(base_date):
@@ -138,7 +138,7 @@ def call_api(base_date):
 
     # 현재 날짜 불러오기
     todaymonth = datetime.today().strftime('%Y%m')
-    service_key = "%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D"
+    service_key = "VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D"
 
     # 처음 csv 저장을 위해 현재 달로 불러오는 base_date를 일시적으로 막아두었습니다.
     # base_date = todaymonth
