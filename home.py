@@ -207,7 +207,7 @@ def merge_csv():
                 
 # 맨 처음 data 수집을 위한 코드 입니다.
 def collect_data():
-    
+
     base_year = '2017'
     base_month = 1
     keylist = ['1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D',
@@ -233,4 +233,4 @@ def main():
     code_extract()
     call_api()
 
-collect_data()
+collect_data() 
