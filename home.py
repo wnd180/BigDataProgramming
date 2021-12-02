@@ -117,13 +117,12 @@ def code_extract():
 
 #매달 api 불러오는 함수입니다.
 
-def call_api():
+def call_api(service_key, base_date):
 
     # 현재 날짜 불러오기
     todaymonth = datetime.today().strftime('%Y%m')
-    base_date = todaymonth
-
-    service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
+    # base_date = todaymonth
+    # service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
 
     # 리스트 생성
     price = []
@@ -208,25 +207,12 @@ def merge_csv():
                 
 # 맨 처음 data 수집을 위한 코드 입니다.
 def collect_data():
-
-    #인증키1
-    #1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D
-    #인증키2
-    #%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D
-    #인증키3
-    #VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D
-
-    base_year = '2016'
+    
+    base_year = '2017'
     base_month = 1
     keylist = ['1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D',
     '%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D',
     'VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D']
-    # csv파일 불러오기
-    f = open('./refine_code.csv','r',encoding='utf-8')
-    rdr = csv.reader(f)
-
-    #헤더 제거하고 진행해야 여러개 파일 뽑을 때 딱 들어 맞음. 250* 4= 1000 인증키당 4달씩 한번에 뽑을 수 있음.
-    next(rdr)
 
     for service_key in keylist:
 
@@ -237,62 +223,9 @@ def collect_data():
             else:
                 base_date = base_year+str(month)
 
-            # 리스트 생성
-            price = []
-            year = []
-            dong = []
-            area = []
-            region_code = []
-            region_name = []
+            call_api(service_key, base_date)
 
-            # 정제된 법정동 코드를 for문을 통해 불러옴. 
-            for line in rdr:
-                gu_code = line[1]
-                region = line[2]
-                print(gu_code)
-
-                try:
-                    # 해당 구에 해당 달 거래내역 없을 수 있음. 따라서 try except구문 이용
-                    url = 'http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?LAWD_CD='+gu_code+'&DEAL_YMD='+base_date+'&serviceKey='+service_key
-                    response = urlopen(url)
-                    results = response.read().decode("utf-8")
-                    result_to_json = xmltodict.parse(results)
-                    data = json.loads(json.dumps(result_to_json))
-                    val = data['response']['body']['items']['item']
-
-                    for i in val:
-                        price.append(i['거래금액'])
-                        year.append(i['년'])
-                        dong.append(i['법정동'])
-                        area.append(i['전용면적'])
-                        region_code.append(i['지역코드'])
-                        region_name.append(region)
-
-                except:
-
-                    continue
-
-            f.close()
-
-            df= pd.DataFrame([price, year, dong, area, region_code, region_name]).T
-            df.columns=['price','year','dong','area','region_code','region_nmae']
-
-            # 공정한 집값 계산을 위해 면적당 가격을 구함.
-            for i in range(0,len(df)):
-                df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
-
-            df.to_csv('./data/'+base_date+'.csv',encoding='utf-8-sig')
-
-        base_month +=4
-
-def error_collect():
-    for i in range(9,13):
-        if i<10:
-            base_date = '20160'+str(i)
-            call_api(base_date)
-        else:
-            base_date = '2016'+str(i)
-            call_api(base_date)
+        base_month += 4
 
 def main():
     crawling()
