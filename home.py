@@ -2,24 +2,27 @@ from urllib.request import urlopen
 import pandas as pd
 import xmltodict
 import json
-from datetime import datetime
+from datetime import datetime, time
 import csv
 from selenium import webdriver
 import zipfile
 import os
 import glob
+import time
 
 # to-do-list
 # 새로운 시가 발생했을때 증가율 불러오기 고민하기
 
-def check_month():
-    print("한달마다 실행되도록 구현")
-    #schedule 이용하자
-    # 2021/12/01일때 2021년 11월 자료 불러오도록.
+def check_year():
+    print("매년 1월 1일 마다 실행되도록 구현")
+    while 1:
 
-def new_year_Check():
-    print("202201 일경우 2012년 파일 delete 해주세요")
-# 새 해일경우 (ex 2022년 1월), 2012년 데이터 다 지우고 새로 merge 해도 될듯.
+        isjan1st = datetime.today().strftime('%Y%m%d')
+        print(isjan1st)
+        if isjan1st[4:] == '0101':
+            main()
+        #무조건 하루 쉬기
+        time.sleep(24*3600)
 
 # 매달 시군구가 생기거나 폐지 될 수 있기 때문에 매달 crawling 통해 check해서 새로운 txt파일 받아옴
 def crawling():
@@ -119,11 +122,6 @@ def code_extract():
 
 def call_api(service_key, base_date):
 
-    # 현재 날짜 불러오기
-    todaymonth = datetime.today().strftime('%Y%m')
-    # base_date = todaymonth
-    # service_key = "1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D"
-
     # 리스트 생성
     price = []
     year = []
@@ -169,18 +167,46 @@ def call_api(service_key, base_date):
     f.close()
 
     df= pd.DataFrame([price, year, dong, area, region_code, region_name]).T
-    df.columns=['price','year','dong','area','region_code','region_nmae']
+    df.columns=['price','year','dong','area','region_code','region_name']
 
     # 공정한 집값 계산을 위해 면적당 가격을 구함.
     for i in range(0,len(df)):
         df.at[i,'per_price']=int((df['price'][i]).replace(",",""))/float(df['area'][i])
 
-    df.to_csv('./data/'+base_date+'.csv',encoding='utf-8-sig')
+    df.to_csv('./data/'+base_date[0:4]+'/'+ base_date+'.csv',encoding='utf-8-sig')
 
-def merge_csv():
+# 맨 처음 data 수집을 위한 코드 입니다.
+def collect_data():
+
+    year  = datetime.today().year
+    base_year = str(year-1)
+
+    base_month = 1
+    # AKset3UAjv5wvS8w8jhlvYpMKguDStCT1ej4lMq8GSiPNE2g88shl%2Br%2B%2FwaiV2QzKEqI1Eq7e7feSOTAxQLGeg%3D%3D
+    # 1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D
+    keylist = ['AKset3UAjv5wvS8w8jhlvYpMKguDStCT1ej4lMq8GSiPNE2g88shl%2Br%2B%2FwaiV2QzKEqI1Eq7e7feSOTAxQLGeg%3D%3D',
+    '%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D',
+    'VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D']
+    os.makedirs("./data/"+base_year)
+    for service_key in keylist:
+
+        for month in range(base_month,base_month+4):
+
+            if month<10:
+                base_date = base_year+'0'+str(month)
+            else:
+                base_date = base_year+str(month)
+            print(base_date)
+
+            call_api(service_key, base_date)
+
+        base_month += 4
+    merge_csv(base_year)
+
+def merge_csv(base_year):
     print("csv파일 merge해서 저장해줄게요")
-    csv_path = "./data/"
-    merge_path = "./merge.csv"
+    csv_path = "./data/"+base_year+'/'
+    merge_path = "./"+base_year+".csv"
 
     file_list = glob.glob(csv_path+'*') #merge 파일 확인
     with open(merge_path,'w') as f:
@@ -205,32 +231,39 @@ def merge_csv():
                             break
                         n+=1
                 
-# 맨 처음 data 수집을 위한 코드 입니다.
-def collect_data():
+def merge_csv_all():
+    print("csv파일 merge해서 저장해줄게요")
+    csv_path = "./yeardata/"
+    merge_path = "./merge.csv"
 
-    base_year = '2017'
-    base_month = 1
-    keylist = ['1qjOjsNCCQP1Tt8rugK42qmJZb13HczJl4MWvHcD86GI54UNOUC%2FnANu1FKC28EJ3nxtie5a7wE6L%2FDHeJ5%2BLQ%3D%3D',
-    '%2FargzrCJK5%2BwZ0DhHr2rbJYbgS%2Bgrj9W2jtM45tBMXuSmZQkjpSezFTK4hUtq65ZuvcfgdpfjvKw1iqAfaDRaw%3D%3D',
-    'VL2jOrZ6duirXHCSKvgN%2Fu1ORHdZeM35it9vO8awdiXAJGiz3rjFrNEKPoEHOABVTEymHMa4kjT0ow94NC4WLQ%3D%3D']
+    file_list = glob.glob(csv_path+'*') #merge 파일 확인
+    with open(merge_path,'w') as f:
+        for i,file in enumerate(file_list):
+            if i== 0:
+                with open(file,'r') as f2:
+                    while True:
+                        line = f2.readline()
 
-    for service_key in keylist:
+                        if not line:
+                            break
+                        f.write(line)
 
-        for month in range(base_month,base_month+4):
-
-            if month<10:
-                base_date = base_year+'0'+str(month)
             else:
-                base_date = base_year+str(month)
-
-            call_api(service_key, base_date)
-
-        base_month += 4
+                with open(file,'r') as f2:
+                    n = 0
+                    while True:
+                        line = f2.readline()
+                        if n != 0:
+                            f.write(line)
+                        if not line:
+                            break
+                        n+=1
 
 def main():
     crawling()
     zip_to_txt()
     code_extract()
-    call_api()
+    collect_data()
 
-collect_data() 
+# check_year()
+merge_csv_all()
