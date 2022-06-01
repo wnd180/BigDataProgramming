@@ -1,20 +1,26 @@
 from urllib.request import urlopen
-import pandas as pd
 import xmltodict
-import json
-from datetime import datetime, time
-import csv
 from selenium import webdriver
+import json
+
+import time
+
+from datetime import datetime, time
+
+import pandas as pd
+
 import zipfile
 import os
+
+import csv
 import glob
-import time
 
 # to-do-list
 # 새로운 시가 발생했을때 증가율 불러오기 고민하기
 
 def check_year():
     print("매년 1월 1일 마다 실행되도록 구현")
+
     while 1:
 
         isjan1st = datetime.today().strftime('%Y%m%d')
@@ -22,15 +28,10 @@ def check_year():
         if isjan1st[4:] == '0101':
             main()
         #무조건 하루 쉬기
-        time.sleep(24*3600)
+        time.sleep(24*3600-1)
 
 # 매달 시군구가 생기거나 폐지 될 수 있기 때문에 매달 crawling 통해 check해서 새로운 txt파일 받아옴
 def crawling():
-
-    #새로운 시가 발생했을 때는?
-    # -> 편입된 상위 시 소속으로 변경됌
-    # -> API로 코드 불러오기
-    # 매달 불러올 때 확인해야되는데 제공해주는 API가 한개뿐. 따라서 beautifulsoup selenium모듈 이용해 txt파일 저장하는 크롤링 개발 예정..
 
     # 기존 zip파일 존재할 경우 삭제해주기
     if os.path.isfile('~/Downloads/법정동코드 전체자료.zip'):
@@ -51,11 +52,6 @@ def crawling():
 
 
 def zip_to_txt():
-    # txt파일 인코딩 다르기 때문에 저장된 파일 인코딩 바꿔주고 그래야 할듯.
-    # https://www.code.go.kr/stdcode/regCodeL.do
-    # 1. 압축해제
-    # 2. txt파일 꺼내기
-    # 3. 인코딩 형태 변환하기 -> cp949쓰면 될듯.
 
     #현재 디렉토리로 압축해제
     zipfile.ZipFile('/Users/kwonseongjung/Downloads/법정동코드 전체자료.zip').extractall(os.getcwd())
@@ -206,7 +202,7 @@ def collect_data():
 def merge_csv(base_year):
     print("csv파일 merge해서 저장해줄게요")
     csv_path = "./data/"+base_year+'/'
-    merge_path = "./"+base_year+".csv"
+    merge_path = "./yeardata/"+base_year+".csv"
 
     file_list = glob.glob(csv_path+'*') #merge 파일 확인
     with open(merge_path,'w') as f:
@@ -265,5 +261,4 @@ def main():
     code_extract()
     collect_data()
 
-# check_year()
-merge_csv_all()
+check_year()
